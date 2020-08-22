@@ -40,19 +40,15 @@ void scan_i2c(i2c_port_t port);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-esp_err_t i2c_take_semaphore(SemaphoreHandle_t* mutex);
+i2c_cmd_handle_t i2c_createCommand();
 
-i2c_cmd_handle_t i2c_createCommand(SemaphoreHandle_t mutex);
+esp_err_t i2c_writeByte(i2c_cmd_handle_t cmd, uint8_t data);
 
-esp_err_t i2c_writeByte(SemaphoreHandle_t mutex, i2c_cmd_handle_t cmd, uint8_t data);
+esp_err_t i2c_write(i2c_cmd_handle_t cmd, uint8_t* data, size_t data_len);
 
-esp_err_t i2c_write(SemaphoreHandle_t mutex, i2c_cmd_handle_t cmd, uint8_t* data, size_t data_len);
+esp_err_t i2c_readByte(i2c_cmd_handle_t cmd, uint8_t* data);
 
-esp_err_t i2c_readByte(SemaphoreHandle_t mutex, i2c_cmd_handle_t cmd, uint8_t* data);
-
-esp_err_t i2c_executeCommand(SemaphoreHandle_t mutex, i2c_cmd_handle_t cmd);
-
-esp_err_t i2c_release_semaphore(SemaphoreHandle_t mutex);
+esp_err_t i2c_executeCommand(i2c_cmd_handle_t cmd);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -20,15 +20,15 @@ static TickType_t wait_delay = 30 / portTICK_RATE_MS;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static esp_err_t gpxp_readRegister_internal(SemaphoreHandle_t mutex, uint8_t register_id, uint8_t *data) {
+static esp_err_t gpxp_readRegister_internal(uint8_t register_id, uint8_t *data) {
     esp_err_t err = ESP_FAIL;
     i2c_cmd_handle_t cmd = NULL;
 
     // Select register
-    cmd = i2c_createCommand(mutex);
-    i2c_writeByte(mutex, cmd, GPIO_EXPANDER_ADDR << 1 | WRITE_BIT);
-    i2c_writeByte(mutex, cmd, register_id);
-    err = i2c_executeCommand(mutex, cmd);
+    cmd = i2c_createCommand();
+    i2c_writeByte(cmd, GPIO_EXPANDER_ADDR << 1 | WRITE_BIT);
+    i2c_writeByte(cmd, register_id);
+    err = i2c_executeCommand(cmd);
     if(err != ESP_OK) {
         ESP_LOGE(TAG, "Fail to select GPIO expander register (%i) ! %s", register_id, esp_err_to_name(err));
         goto end;
@@ -37,10 +37,10 @@ static esp_err_t gpxp_readRegister_internal(SemaphoreHandle_t mutex, uint8_t reg
     vTaskDelay(wait_delay);
 
     // Send command
-    cmd = i2c_createCommand(mutex);
-    i2c_writeByte(mutex, cmd, GPIO_EXPANDER_ADDR << 1 | READ_BIT);
-    i2c_readByte(mutex, cmd, data);
-    err = i2c_executeCommand(mutex, cmd);
+    cmd = i2c_createCommand();
+    i2c_writeByte(cmd, GPIO_EXPANDER_ADDR << 1 | READ_BIT);
+    i2c_readByte(cmd, data);
+    err = i2c_executeCommand(cmd);
     if(err != ESP_OK) {
         ESP_LOGE(TAG, "Fail to send command to GPIO expander! %s", esp_err_to_name(err));
         goto end;
@@ -54,12 +54,12 @@ static esp_err_t gpxp_readRegister_internal(SemaphoreHandle_t mutex, uint8_t reg
     return err;
 }
 
-static esp_err_t gpxp_writeRegister_internal(SemaphoreHandle_t mutex, uint8_t register_id, uint8_t data) {
-    i2c_cmd_handle_t cmd = i2c_createCommand(mutex);
-    i2c_writeByte(mutex, cmd, (GPIO_EXPANDER_ADDR << 1) | WRITE_BIT);
-    i2c_writeByte(mutex, cmd, register_id);
-    i2c_writeByte(mutex, cmd, data);
-    return i2c_executeCommand(mutex, cmd);
+static esp_err_t gpxp_writeRegister_internal(uint8_t register_id, uint8_t data) {
+    i2c_cmd_handle_t cmd = i2c_createCommand();
+    i2c_writeByte(cmd, (GPIO_EXPANDER_ADDR << 1) | WRITE_BIT);
+    i2c_writeByte(cmd, register_id);
+    i2c_writeByte(cmd, data);
+    return i2c_executeCommand(cmd);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -82,28 +82,19 @@ esp_err_t gpxp_initialize() {
         goto end;
     }
 
-    SemaphoreHandle_t mutex = NULL;
-    err = i2c_take_semaphore(&mutex);
-    if(err != ESP_OK) {
-        ESP_LOGE(TAG, "Fail to i2c_take_semaphore!");
-        goto end;
-    }
-
     // Ping I2C
     i2c_ping(GPIO_EXPANDER_ADDR);
 
     // I/O direction registers
-    gpxp_writeRegister_internal(mutex, REGISTER_IODIR0, 0xFF);  // IN
-    gpxp_writeRegister_internal(mutex, REGISTER_IODIR1, 0x00);  // OUT
+    gpxp_writeRegister_internal(REGISTER_IODIR0, 0xFF);  // IN
+    gpxp_writeRegister_internal(REGISTER_IODIR1, 0x00);  // OUT
 
     // Input polarity registers
-    gpxp_writeRegister_internal(mutex, REGISTER_IPOL0, 0x00);
-    gpxp_writeRegister_internal(mutex, REGISTER_IPOL1, 0x00);
+    gpxp_writeRegister_internal(REGISTER_IPOL0, 0x00);
+    gpxp_writeRegister_internal(REGISTER_IPOL1, 0x00);
 
     // High resolution iterut
-    gpxp_writeRegister_internal(mutex, REGISTER_IOCON0, 0X00);
-
-    i2c_release_semaphore(mutex);
+    gpxp_writeRegister_internal(REGISTER_IOCON0, 0X00);
 
     err = ESP_OK;
 
@@ -129,15 +120,7 @@ esp_err_t gpxp_readRegister(uint8_t register_id, uint8_t *data) {
         goto end;
     }
 
-    SemaphoreHandle_t mutex = NULL;
-    err = i2c_take_semaphore(&mutex);
-    if(err != ESP_OK) {
-        ESP_LOGE(TAG, "Fail to i2c_take_semaphore");
-        goto end;
-    }
-
-    err = gpxp_readRegister_internal(mutex, register_id, data);
-    i2c_release_semaphore(mutex);
+    err = gpxp_readRegister_internal(register_id, data);
 
     end:
     LOGM_FUNC_OUT();
@@ -155,15 +138,7 @@ esp_err_t gpxp_writeRegister(uint8_t register_id, uint8_t data) {
         goto end;
     }
 
-    SemaphoreHandle_t mutex = NULL;
-    err = i2c_take_semaphore(&mutex);
-    if(err != ESP_OK) {
-        ESP_LOGE(TAG, "Fail to i2c_take_semaphore");
-        goto end;
-    }
-
-    err = gpxp_writeRegister_internal(mutex, register_id, data);
-    i2c_release_semaphore(mutex);
+    err = gpxp_writeRegister_internal(register_id, data);
 
     if(err != ESP_OK) {
         ESP_LOGE(TAG, "Fail to read register (register ID: %i)! %s", register_id, esp_err_to_name(err));
