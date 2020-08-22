@@ -12,13 +12,13 @@
 
 #include "app_tools.h"
 #include "gpio_expander.h"
-#include "i2c_driver.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
 static const char *TAG = "PHONETASTIC";
-#define GPXP_REGISTER_OUT   REGISTER_GP1
-#define GPXP_REGISTER_IN    REGISTER_GP0
+
+#define GPXP_REGISTER_OUT       REGISTER_GP1
+#define GPXP_REGISTER_IN        REGISTER_GP0
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -121,9 +121,6 @@ void read_input() {
 
 void app_main(void) {
     LOGM_FUNC_IN();
-
-    // i2c_initialize();
-    // scan_i2c(0);
 
     gpxp_initialize();
     gpxp_writeRegister(GPXP_REGISTER_OUT, 0x03);
