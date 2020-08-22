@@ -78,7 +78,8 @@
     "opus_encoder.h": "c",
     "wav_encoder.h": "c",
     "optional": "c",
-    "utility": "c"
+    "utility": "c",
+    "memory": "c"
   },
   "C_Cpp.intelliSenseEngineFallback": "Disabled",
   "C_Cpp.errorSquiggles": "Disabled",
