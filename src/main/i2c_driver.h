@@ -36,7 +36,7 @@ esp_err_t i2c_finalize(void);
 
 esp_err_t i2c_ping(int addr);
 
-void scan_i2c(i2c_port_t port);
+void i2c_scan(i2c_port_t port);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 

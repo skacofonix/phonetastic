@@ -32,8 +32,8 @@ esp_err_t i2c_initialize() {
         .mode = I2C_MODE_MASTER,
         .scl_io_num = I2C_MASTER_SCL_IO,
         .sda_io_num = I2C_MASTER_SDA_IO,
-        .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .sda_pullup_en = GPIO_PULLUP_ENABLE,
+        .scl_pullup_en = GPIO_PULLUP_DISABLE,     // GPIO expander board have pullup
+        .sda_pullup_en = GPIO_PULLUP_DISABLE,     // GPIO expander board have pullup
         .master.clk_speed = I2C_MASTER_FREQ_HZ
     };
 
@@ -89,7 +89,7 @@ esp_err_t i2c_ping(int addr) {
     return err;
 }
 
-void scan_i2c(i2c_port_t port) {
+void i2c_scan(i2c_port_t port) {
     ESP_LOGI(TAG, "Scanning the I²C bus...");
     int devices_found = 0;
 
@@ -110,6 +110,18 @@ void scan_i2c(i2c_port_t port) {
     }
 
     ESP_LOGI(TAG, "Scan complete., %i devices found.", devices_found);
+}
+
+void i2c_reset(i2c_port_t port) {
+    esp_err_t err = ESP_FAIL;
+    
+    err = i2c_reset_tx_fifo(port);
+    ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+
+    err = i2c_reset_rx_fifo(port);
+    ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+
+    return err;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
