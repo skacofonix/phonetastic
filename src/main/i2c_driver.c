@@ -53,6 +53,7 @@ esp_err_t i2c_initialize() {
     if(err == ESP_OK) {
         i2c_initialized = true;
     }
+
     LOGM_FUNC_OUT();
     return err;
 }
@@ -72,6 +73,8 @@ esp_err_t i2c_finalize() {
 }
 
 esp_err_t i2c_ping(int addr) {
+    LOGM_FUNC_IN();
+
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (addr << 1) | I2C_MASTER_WRITE, true);
@@ -86,10 +89,13 @@ esp_err_t i2c_ping(int addr) {
     }
 
     i2c_cmd_link_delete(cmd);
+
+    LOGM_FUNC_OUT();
     return err;
 }
 
 void i2c_scan(i2c_port_t port) {
+    LOGM_FUNC_IN();
     ESP_LOGI(TAG, "Scanning the I²C bus...");
     int devices_found = 0;
 
@@ -110,18 +116,14 @@ void i2c_scan(i2c_port_t port) {
     }
 
     ESP_LOGI(TAG, "Scan complete., %i devices found.", devices_found);
+     LOGM_FUNC_OUT();
 }
 
 void i2c_reset(i2c_port_t port) {
-    esp_err_t err = ESP_FAIL;
-    
-    err = i2c_reset_tx_fifo(port);
-    ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-
-    err = i2c_reset_rx_fifo(port);
-    ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-
-    return err;
+    LOGM_FUNC_IN();
+    ESP_ERROR_CHECK_WITHOUT_ABORT(i2c_reset_tx_fifo(port));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(i2c_reset_rx_fifo(port));
+    LOGM_FUNC_OUT();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

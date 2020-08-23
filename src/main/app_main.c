@@ -1,9 +1,11 @@
 #include "esp_log.h"
 
 #include "phonetastic_app.h"
+
+#include "diag_i2c.h"
+#include "diag_gpio_expander.h"
 #include "gpio_expander.h"
 #include "i2c_driver.h"
-#include "diagnostics/diag_i2c.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -13,6 +15,7 @@ static const char *TAG = "app_main";
 
 void log_initialize() {
     esp_log_level_set("*", ESP_LOG_VERBOSE);
+    esp_log_level_set(TAG_DIAG_GPIO_EXPANDER, ESP_LOG_VERBOSE);
     esp_log_level_set(TAG_DIAG_I2C, ESP_LOG_VERBOSE);
     esp_log_level_set(TAG_GPIO_EXPANDER, ESP_LOG_VERBOSE);
     esp_log_level_set(TAG_I2C_DRIVER, ESP_LOG_VERBOSE);
@@ -33,9 +36,8 @@ void log_initialize() {
 void app_main(void) {
     log_initialize();
 
-    esp_err_t err = ESP_FAIL;
-    err = diag_i2c_check();
-    ESP_ERROR_CHECK(err);
+    ESP_ERROR_CHECK(diag_i2c_check());
+    ESP_ERROR_CHECK(diag_gpio_expander_check());
 
     phonetastic_app_init();
 }

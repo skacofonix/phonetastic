@@ -6,8 +6,7 @@
 
 #include "diag_i2c.h"
 #include "gpio_expander.h"
-
-#include "i2c_miscotte.h"
+#include "i2c_driver.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -72,7 +71,7 @@ esp_err_t diag_i2c_check(void) {
     ESP_ERROR_CHECK(err);
 
     ESP_LOGI(TAG, "Ping known devices:");
-    ping_i2c_slave(I2C_MASTER_NUM, GPIO_EXPANDER_ADDR);
+    i2c_ping(GPIO_EXPANDER_ADDR);
 
     scan_i2c(I2C_MASTER_NUM);
 

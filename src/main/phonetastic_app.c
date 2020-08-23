@@ -20,29 +20,32 @@ static const char *TAG = "PHONETASTIC";
 #define GPXP_REGISTER_OUT       REGISTER_GP1
 #define GPXP_REGISTER_IN        REGISTER_GP0
 
+#define INITIAL_REGISTER_OUT    0x03
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static clock_t previousTimeEvent;
 static uint8_t previousGp0value = 0;
+static uint8_t previousGp1value = INITIAL_REGISTER_OUT;
+
+///////////////////////////////////////////////////////////////////////////////
 
 static esp_err_t _periph_event_handle(audio_event_iface_msg_t *event, void *context) {
     if((int)event->source_type != PERIPH_ID_BUTTON) {
         return ESP_OK;
     }
 
-    ESP_LOGI(TAG, "BUTTON[%d], event->event_id=%d", (int)event->data, event->cmd);
+    ESP_LOGV(TAG, "BUTTON[%d], event->event_id=%d", (int)event->data, event->cmd);
 
     if((int)event->data == get_input_rec_id() && event->cmd == PERIPH_BUTTON_PRESSED){
-        uint8_t incap0value;
-        if(gpxp_readRegister(REGISTER_INTCAP0, &incap0value) != ESP_OK) {
+        uint8_t gp0value;
+
+        if(gpxp_readRegisterWithRetry(REGISTER_INTCAP0, &gp0value, 5) != ESP_OK) {
             ESP_LOGE(TAG, "Fail to read INTCAP0!");
         } else {
-            ESP_LOGI(TAG, "INTCAP0: %i", incap0value);
-
-            uint8_t gp0value;
-            if(gpxp_readRegister(GPXP_REGISTER_IN, &gp0value) != ESP_OK) {
-                ESP_LOGE(TAG, "Fail to read GP0!");
-            } else if(gp0value != previousGp0value) {
+            if(gp0value == previousGp0value) {
+                ESP_LOGD(TAG, "No change on GP0!");
+            } else {
                 previousGp0value = gp0value;
 
                 clock_t currentTimeEvent = clock();
@@ -51,31 +54,35 @@ static esp_err_t _periph_event_handle(audio_event_iface_msg_t *event, void *cont
 
                 ESP_LOGI(TAG, "GP0: %#02x (%lf)", gp0value, duration);
 
-                uint8_t gp1value = 0x03;
+                uint8_t gp1value = INITIAL_REGISTER_OUT;
                 if((gp0value & GPIO_1_0) != 0) {
                     gp1value = gp1value | 0x04;
-                    ESP_LOGD(TAG, "GP1: %#02x", gp1value);
+                    ESP_LOGD(TAG, "GP1: %#02x (0)", gp1value);
                 }
                 if((gp0value & GPIO_1_1) != 0) {
                     gp1value = gp1value | 0x08;
-                    ESP_LOGD(TAG, "GP1: %#02x", gp1value);
+                    ESP_LOGD(TAG, "GP1: %#02x (1)", gp1value);
                 }
                 if((gp0value & GPIO_1_2) != 0) {
                     gp1value = gp1value | 0x10;
-                    ESP_LOGD(TAG, "GP1: %#02x", gp1value);
+                    ESP_LOGD(TAG, "GP1: %#02x (2)", gp1value);
                 }
                 if((gp0value & GPIO_1_3) != 0) {
                     gp1value = gp1value | 0x20;
-                    ESP_LOGD(TAG, "GP1: %#02x", gp1value);
+                    ESP_LOGD(TAG, "GP1: %#02x (3)", gp1value);
                 }
                 if((gp0value & GPIO_1_4) != 0) {
                     gp1value = gp1value | 0x40;
-                    ESP_LOGD(TAG, "GP1: %#02x", gp1value);
+                    ESP_LOGD(TAG, "GP1: %#02x (4)", gp1value);
                 }
 
-                ESP_LOGI(TAG, "GP1: %#02x", gp1value);
-
-                gpxp_writeRegister(GPXP_REGISTER_OUT, gp1value);
+                if(gp1value == previousGp1value) {
+                    ESP_LOGV(TAG, "No change on GP1!");
+                } else {
+                    ESP_LOGI(TAG, "GP1: %#02x", gp1value);
+                    gpxp_writeRegister(GPXP_REGISTER_OUT, gp1value);
+                    previousGp1value = gp1value;
+                }
             }
         }
     }
@@ -119,11 +126,13 @@ void read_input() {
     LOGM_FUNC_OUT();
 }
 
-void app_main(void) {
+///////////////////////////////////////////////////////////////////////////////
+
+void phonetastic_app_init(void) {
     LOGM_FUNC_IN();
 
     gpxp_initialize();
-    gpxp_writeRegister(GPXP_REGISTER_OUT, 0x03);
+    gpxp_writeRegister(GPXP_REGISTER_OUT, INITIAL_REGISTER_OUT);
     read_input();
 
     // ToDo

@@ -126,6 +126,34 @@ esp_err_t gpxp_readRegister(uint8_t register_id, uint8_t *data) {
     return err;
 }
 
+esp_err_t gpxp_readRegisterWithRetry(uint8_t registerId, uint8_t *data, uint8_t nbRetry) {
+    LOGM_FUNC_IN();
+
+    esp_err_t err = ESP_FAIL;
+
+    if(!initialized) {
+        ESP_LOGE(TAG, "GPIO expander is not initialized, call gpxp_initialize() before!");
+        err = ESP_FAIL;
+        goto end;
+    }
+
+    uint8_t remainingTry = nbRetry;
+    do {
+        err = gpxp_readRegister(registerId, data);
+        remainingTry--;
+        ESP_LOGD(TAG, "RemainingTry: %i, Err: %s", remainingTry, esp_err_to_name(err));
+    } while (err != ESP_OK && remainingTry > 0);
+
+    if(err != ESP_OK) {
+        ESP_LOGW(TAG, "Reset I2C buffers!");
+        i2c_reset(I2C_MASTER_NUM);
+    }
+
+    end:
+    LOGM_FUNC_OUT();
+    return err;
+}
+
 esp_err_t gpxp_writeRegister(uint8_t register_id, uint8_t data) {
     LOGM_FUNC_IN();
 

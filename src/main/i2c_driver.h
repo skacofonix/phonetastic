@@ -38,6 +38,8 @@ esp_err_t i2c_ping(int addr);
 
 void i2c_scan(i2c_port_t port);
 
+void i2c_reset(i2c_port_t port);
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 i2c_cmd_handle_t i2c_createCommand();
