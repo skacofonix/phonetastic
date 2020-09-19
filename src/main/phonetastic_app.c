@@ -140,8 +140,8 @@ esp_err_t read_row(int row, uint8_t *data) {
     esp_err_t err = ESP_OK;
 
     err |= gpxp_writeRegister(GPXP_REGISTER_OUT, row);
-    vTaskDelay(30 / portTICK_RATE_MS);
-    err |= gpxp_readRegister(GPXP_REGISTER_OUT, data);
+    vTaskDelay(100 / portTICK_RATE_MS);
+    err |= gpxp_readRegister(GPXP_REGISTER_IN, data);
 
     LOGM_FUNC_OUT();
     return err;
@@ -172,6 +172,7 @@ void launch_read_lines() {
     }
     while(true) {
         read_lines(previous_values, NB_ROW);
+        vTaskDelay(1000 / portTICK_RATE_MS);
     }
 }
 
@@ -180,34 +181,26 @@ void launch_read_lines() {
 void phonetastic_app_init(void) {
     LOGM_FUNC_IN();
 
-    //
-    //launch_read_lines();
-    //
-
-    gpxp_initialize();
-    gpxp_writeRegister(GPXP_REGISTER_OUT, INITIAL_REGISTER_OUT);
+    //gpxp_initialize();
+    //gpxp_writeRegister(GPXP_REGISTER_OUT, INITIAL_REGISTER_OUT);
 
     esp_periph_config_t periph_cfg = DEFAULT_ESP_PERIPH_SET_CONFIG();
     esp_periph_set_handle_t set = esp_periph_set_init(&periph_cfg);
 
+    audio_board_sdcard_init(set);
+
     audio_board_handle_t board_handle = audio_board_init();
     audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_DECODE, AUDIO_HAL_CTRL_START);
 
-    audio_board_sdcard_init(set);
+    audio_event_iface_cfg_t evt_cfg = AUDIO_EVENT_IFACE_DEFAULT_CFG();
+    audio_event_iface_handle_t evt = audio_event_iface_init(&evt_cfg);
 
-    rngr_initialize(set, board_handle);
+    rngr_initialize(set, board_handle, evt);
     rngr_start();
 
-    // Ringer
-        // Play ringtone => Channel RIGHT
-        // Rintone is MP3 file set hardly in .h
-
-    // Player
-        // Play(uri) => Channel LEFT
-        // 
-        //
-
-    // But only can play one channel at time
+    //
+    //launch_read_lines();
+    //
 
     LOGM_FUNC_OUT();
 }

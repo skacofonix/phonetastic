@@ -1,8 +1,19 @@
+#ifndef PLAYER_H
+#define PLAYER_H
+
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char *TAG = "player";
+#define TAG_PLAYER "player"
+
+#include "board.h"
+#include "esp_peripherals.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void plyr_initialize(esp_periph_set_handle_t set, audio_board_handle_t board);
+void plyr_finalize();
+void plyr_start(char* uri);
+void plyr_stop();
 
 void player_play() {
     // Todo file parameter
@@ -27,3 +38,5 @@ void player_play_right_channel() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+#endif // PLAYER_H
