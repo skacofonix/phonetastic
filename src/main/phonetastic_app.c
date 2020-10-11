@@ -197,16 +197,13 @@ void phonetastic_app_init(void) {
 
     rngr_initialize(set, board_handle, evt);
 
-    rngr_start();
-
-    vTaskDelay(5000 / portTICK_PERIOD_MS);
-
-    rngr_start_right();
-
-    vTaskDelay(5000 / portTICK_PERIOD_MS);
-
-    rngr_start_left();
-
+    while(true) {
+        rngr_start_right();
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        rngr_start_left();
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
+    }
+    
     //
     //launch_read_lines();
     //
