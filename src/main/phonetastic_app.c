@@ -8,6 +8,7 @@
 #include "esp_peripherals.h"
 #include "esp_log.h"
 #include "periph_button.h"
+#include "periph_sdcard.h"
 #include "board.h"
 
 #include "app_tools.h"
@@ -187,7 +188,7 @@ void phonetastic_app_init(void) {
     esp_periph_config_t periph_cfg = DEFAULT_ESP_PERIPH_SET_CONFIG();
     esp_periph_set_handle_t set = esp_periph_set_init(&periph_cfg);
 
-    audio_board_sdcard_init(set);
+    audio_board_sdcard_init(set, SD_MODE_1_LINE);
 
     audio_board_handle_t board_handle = audio_board_init();
     audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_DECODE, AUDIO_HAL_CTRL_START);

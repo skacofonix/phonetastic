@@ -281,11 +281,15 @@ void rngr_finalize() {
 void rngr_start_left() {
     LOGM_FUNC_IN();
     audio_pipeline_stop(_pipeline_right);
+    audio_pipeline_wait_for_stop(_pipeline_right);
+    audio_pipeline_terminate(_pipeline_right);
 
     _is_left_channel = true;
 
     audio_hal_set_volume(_board->audio_hal, RINGTONE_VOLUME);
 
+    audio_pipeline_reset_ringbuffer(_pipeline_left);
+    audio_pipeline_reset_elements(_pipeline_left);
     audio_pipeline_run(_pipeline_left);
     LOGM_FUNC_OUT();
 }
@@ -293,11 +297,15 @@ void rngr_start_left() {
 void rngr_start_right() {
     LOGM_FUNC_IN();
     audio_pipeline_stop(_pipeline_left);
+    audio_pipeline_wait_for_stop(_pipeline_left);
+    audio_pipeline_terminate(_pipeline_left);
 
     _is_left_channel = false;
 
     audio_hal_set_volume(_board->audio_hal, PHONE_VOLUME);
 
+    audio_pipeline_reset_ringbuffer(_pipeline_right);
+    audio_pipeline_reset_elements(_pipeline_right);
     audio_pipeline_run(_pipeline_right);
     LOGM_FUNC_OUT();
 }
