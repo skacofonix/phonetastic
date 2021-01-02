@@ -83,5 +83,6 @@
   },
   "C_Cpp.intelliSenseEngineFallback": "Disabled",
   "C_Cpp.errorSquiggles": "Disabled",
+  "cmake.configureOnOpen": true,
   //"terminal.integrated.shell.windows":"C:\\WINDOWS\\System32\\cmd.exe"
 }
