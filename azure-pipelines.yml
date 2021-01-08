@@ -15,6 +15,10 @@ steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
 
+- task: BatchScript@1
+  inputs:
+    filename: 'build.bat'
+
 - script: |
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
