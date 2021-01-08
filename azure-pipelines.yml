@@ -15,9 +15,10 @@ steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
 
-- task: BatchScript@1
-  inputs:
-    filename: 'build.bat'
+- script: |
+    cd src
+    make all -j4
+  displayName: 'Build with make'
 
 - script: |
     echo Add other tasks to build, test, and deploy your project.
