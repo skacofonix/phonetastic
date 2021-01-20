@@ -94,10 +94,10 @@ esp_err_t diag_gpio_expander_check(void) {
 
     crawlerLoop(100 / portTICK_RATE_MS, 4);
 
-    err = gpxp_writeRegister(GPXP_REGISTER_OUT, 0x00);
+    err = gpxp_writeRegister(GPXP_REGISTER_OUT, 0xFF);
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
 
-    err = read_input_loop(1000 / portTICK_RATE_MS, 100);
+    err = read_input_loop(500 / portTICK_RATE_MS, 100);
 
     LOGM_FUNC_OUT();
     return err;
