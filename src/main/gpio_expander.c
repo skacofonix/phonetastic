@@ -121,6 +121,12 @@ esp_err_t gpxp_readRegister(uint8_t register_id, uint8_t *data) {
 
     err = gpxp_readRegister_internal(register_id, data);
 
+    if(err != ESP_OK) {
+        ESP_LOGE(TAG, "Fail to read register (register ID: %i)! %s", register_id, esp_err_to_name(err));
+        ESP_LOGW(TAG, "Reset I2C buffers!");
+        i2c_reset(I2C_MASTER_NUM);
+    }
+
     end:
     LOGM_FUNC_OUT();
     return err;
@@ -168,10 +174,13 @@ esp_err_t gpxp_writeRegister(uint8_t register_id, uint8_t data) {
     err = gpxp_writeRegister_internal(register_id, data);
 
     if(err != ESP_OK) {
-        ESP_LOGE(TAG, "Fail to read register (register ID: %i)! %s", register_id, esp_err_to_name(err));
+        ESP_LOGE(TAG, "Fail to write register (register ID: %i)! %s", register_id, esp_err_to_name(err));
+        ESP_LOGW(TAG, "Reset I2C buffers!");
+        i2c_reset(I2C_MASTER_NUM);
     }
 
     end:
+
     LOGM_FUNC_OUT();
     return err;
 }

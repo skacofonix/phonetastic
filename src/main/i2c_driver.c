@@ -12,7 +12,6 @@
 
 static const char *TAG = TAG_I2C_DRIVER;
 
-static TickType_t xBlockTime = 10;
 static TickType_t i2c_timeout = 10000 / portTICK_RATE_MS;
 static bool i2c_initialized = false;
 
@@ -135,11 +134,11 @@ i2c_cmd_handle_t i2c_createCommand() {
 }
 
 esp_err_t i2c_writeByte(i2c_cmd_handle_t cmd_handle, uint8_t data) {
-    return i2c_master_write_byte(cmd_handle, data, ACK_CHECK);
+    return i2c_master_write_byte(cmd_handle, data, ACK_VAL);
 }
 
 esp_err_t i2c_write(i2c_cmd_handle_t cmd, uint8_t* data, size_t data_len) {
-    return i2c_master_write(cmd, data, data_len, ACK_CHECK);
+    return i2c_master_write(cmd, data, data_len, ACK_VAL);
 }
 
 esp_err_t i2c_readByte(i2c_cmd_handle_t cmd, uint8_t* data) {
