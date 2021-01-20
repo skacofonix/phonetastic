@@ -1,4 +1,4 @@
-kecho "setup-environment.bat"
+echo "setup-environment.bat"
 echo %userprofile%
 
 cd %userprofile%\esp
@@ -10,4 +10,3 @@ set ADF_PATH=%userprofile%\esp\esp-adf
 
 echo %IDF_PATH%
 echo %ADF_PATH%
-
