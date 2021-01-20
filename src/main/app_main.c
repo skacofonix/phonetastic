@@ -40,10 +40,10 @@ void log_initialize() {
 void app_main(void) {
     log_initialize();
 
-    //ESP_ERROR_CHECK(diag_i2c_check());
-    //ESP_ERROR_CHECK(diag_gpio_expander_check());
+    ESP_ERROR_CHECK(diag_i2c_check());
+    ESP_ERROR_CHECK(diag_gpio_expander_check());
 
-    phonetastic_app_init();
+    // phonetastic_app_init();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

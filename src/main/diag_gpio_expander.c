@@ -53,6 +53,30 @@ void crawlerLoop(TickType_t sleep, uint8_t nbLoop) {
     }
 }
 
+esp_err_t read_input() {
+    esp_err_t err = ESP_FAIL;
+
+    uint8_t data;
+    err = gpxp_readRegisterWithRetry(GPXP_REGISTER_IN, &data, 10);
+    if(err == ESP_OK) {
+        ESP_LOGI(TAG, "GP0: %#02x", data);
+    } else {
+        ESP_LOGW(TAG, "GP0: FAIL");
+    }
+
+    return err;
+}
+
+esp_err_t read_input_loop(TickType_t sleep, uint8_t nbLoop) {
+    esp_err_t err = ESP_FAIL;
+    for(int8_t i=0; i<nbLoop; i++) {
+        vTaskDelay(sleep);
+        err = read_input();
+        if(err != ESP_OK) break;
+    }
+    return err;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 esp_err_t diag_gpio_expander_check(void) {
@@ -72,6 +96,8 @@ esp_err_t diag_gpio_expander_check(void) {
 
     err = gpxp_writeRegister(GPXP_REGISTER_OUT, 0x00);
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+
+    err = read_input_loop(1000 / portTICK_RATE_MS, 100);
 
     LOGM_FUNC_OUT();
     return err;
