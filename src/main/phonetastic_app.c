@@ -38,15 +38,10 @@ void phonetastic_app_init(void) {
 
     rngr_initialize(set, board_handle, evt);
 
-    //plyr_initialize(set, board_handle, evt);
-    //plyr_set_volume(5);
-
     while(true) {
-        //plyr_play("/sdcard/ringtone-left.mp3");
-        rngr_start_left();
+        rngr_start_left("/sdcard/ringtone-left.mp3");
         vTaskDelay(5000 / portTICK_PERIOD_MS);
-        //plyr_play("/sdcard/ringtone-right.mp3");
-        rngr_start_right();
+        rngr_start_right("/sdcard/ringtone-right.mp3");
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 

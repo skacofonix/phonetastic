@@ -1,25 +1,17 @@
-#include "board.h"
-#include "esp_log.h"
-#include "esp_audio.h"
-
 #include "audio_element.h"
 #include "audio_event_iface.h"
 #include "audio_hal.h"
 #include "audio_pipeline.h"
-
+#include "board.h"
+#include "esp_log.h"
+#include "esp_audio.h"
 #include "fatfs_stream.h"
-#include "mp3_decoder.h"
 #include "i2s_stream.h"
-
-#include "esp_vfs_fat.h"
-#include "driver/sdmmc_host.h"
-#include "sdmmc_cmd.h"
+#include "mp3_decoder.h"
 
 #include "app_tools.h"
 
 #include "ringer.h"
-
-char* uri = "/sdcard/ringtone.mp3";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -100,8 +92,6 @@ static audio_pipeline_handle_t create_left_audio_pipeline() {
     ESP_LOGI(TAG, "[3.5.1] Link it together [sdcard]-->fatfs_stream-->audio_decoder-->i2s_stream-->[codec_chip]");
     audio_pipeline_link(pipeline, (const char *[]){"file", "decoder", "i2s"}, 3);
 
-    audio_element_set_uri(_fatfs_stream_reader_left, "/sdcard/ringtone.mp3");
-
     LOGM_FUNC_OUT();
     return pipeline;
 }
@@ -122,8 +112,6 @@ static audio_pipeline_handle_t create_right_audio_pipeline() {
 
     ESP_LOGI(TAG, "[3.5.1] Link it together [sdcard]-->fatfs_stream-->audio_decoder-->i2s_stream-->[codec_chip]");
     audio_pipeline_link(pipeline, (const char *[]){"file", "decoder", "i2s"}, 3);
-
-    audio_element_set_uri(_fatfs_stream_reader_right, "/sdcard/ringtone.mp3");
 
     LOGM_FUNC_OUT();
     return pipeline;
@@ -278,7 +266,7 @@ void rngr_finalize() {
     LOGM_FUNC_OUT();
 }
 
-void rngr_start_left() {
+void rngr_start_left(char* uri) {
     LOGM_FUNC_IN();
     audio_pipeline_stop(_pipeline_right);
     audio_pipeline_wait_for_stop(_pipeline_right);
@@ -287,6 +275,7 @@ void rngr_start_left() {
     _is_left_channel = true;
 
     audio_hal_set_volume(_board->audio_hal, RINGTONE_VOLUME);
+    audio_element_set_uri(_fatfs_stream_reader_left, uri);
 
     audio_pipeline_reset_ringbuffer(_pipeline_left);
     audio_pipeline_reset_elements(_pipeline_left);
@@ -294,7 +283,7 @@ void rngr_start_left() {
     LOGM_FUNC_OUT();
 }
 
-void rngr_start_right() {
+void rngr_start_right(char* uri) {
     LOGM_FUNC_IN();
     audio_pipeline_stop(_pipeline_left);
     audio_pipeline_wait_for_stop(_pipeline_left);
@@ -303,6 +292,7 @@ void rngr_start_right() {
     _is_left_channel = false;
 
     audio_hal_set_volume(_board->audio_hal, PHONE_VOLUME);
+    audio_element_set_uri(_fatfs_stream_reader_right, uri);
 
     audio_pipeline_reset_ringbuffer(_pipeline_right);
     audio_pipeline_reset_elements(_pipeline_right);
