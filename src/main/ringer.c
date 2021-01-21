@@ -100,7 +100,7 @@ static audio_pipeline_handle_t create_left_audio_pipeline() {
     ESP_LOGI(TAG, "[3.5.1] Link it together [sdcard]-->fatfs_stream-->audio_decoder-->i2s_stream-->[codec_chip]");
     audio_pipeline_link(pipeline, (const char *[]){"file", "decoder", "i2s"}, 3);
 
-    audio_element_set_uri(_fatfs_stream_reader_left, "/sdcard/ringtone-left.mp3");
+    audio_element_set_uri(_fatfs_stream_reader_left, "/sdcard/ringtone.mp3");
 
     LOGM_FUNC_OUT();
     return pipeline;
@@ -113,7 +113,7 @@ static audio_pipeline_handle_t create_right_audio_pipeline() {
 
     _fatfs_stream_reader_right = create_fatfs_stream_writer();
     _audio_decoder_right = create_mp3_decoder();
-    _i2s_stream_writer_right = create_i2s_writer(I2S_CHANNEL_FMT_RIGHT_LEFT);
+    _i2s_stream_writer_right = create_i2s_writer(I2S_CHANNEL_STEREO);
 
     ESP_LOGI(TAG, "[3.4.1] Register all elements to audio pipeline");
     audio_pipeline_register(pipeline, _fatfs_stream_reader_right,      "file");
@@ -123,7 +123,7 @@ static audio_pipeline_handle_t create_right_audio_pipeline() {
     ESP_LOGI(TAG, "[3.5.1] Link it together [sdcard]-->fatfs_stream-->audio_decoder-->i2s_stream-->[codec_chip]");
     audio_pipeline_link(pipeline, (const char *[]){"file", "decoder", "i2s"}, 3);
 
-    audio_element_set_uri(_fatfs_stream_reader_right, "/sdcard/ringtone-right.mp3");
+    audio_element_set_uri(_fatfs_stream_reader_right, "/sdcard/ringtone.mp3");
 
     LOGM_FUNC_OUT();
     return pipeline;
