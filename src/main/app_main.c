@@ -6,7 +6,6 @@
 #include "diag_gpio_expander.h"
 #include "gpio_expander.h"
 #include "i2c_driver.h"
-#include "player.h"
 #include "ringer.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,7 +20,6 @@ void log_initialize() {
     esp_log_level_set(TAG_DIAG_I2C, ESP_LOG_VERBOSE);
     esp_log_level_set(TAG_GPIO_EXPANDER, ESP_LOG_INFO);
     esp_log_level_set(TAG_I2C_DRIVER, ESP_LOG_VERBOSE);
-    esp_log_level_set(TAG_PLAYER, ESP_LOG_VERBOSE);
     esp_log_level_set(TAG_RINGER, ESP_LOG_VERBOSE);
     esp_log_level_set(TAG_PHONETASTIC_APP, ESP_LOG_INFO);
 

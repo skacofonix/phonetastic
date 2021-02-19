@@ -79,7 +79,8 @@
     "wav_encoder.h": "c",
     "optional": "c",
     "utility": "c",
-    "memory": "c"
+    "memory": "c",
+    "i2c_driver.h": "c"
   },
   "C_Cpp.intelliSenseEngineFallback": "Disabled",
   "C_Cpp.errorSquiggles": "Disabled",
