@@ -82,7 +82,9 @@
     "memory": "c",
     "i2c_driver.h": "c",
     "player.h": "c",
-    "diag_gpio_expander.h": "c"
+    "diag_gpio_expander.h": "c",
+    "audio_event_iface.h": "c",
+    "ringer.h": "c"
   },
   "C_Cpp.intelliSenseEngineFallback": "Disabled",
   "C_Cpp.errorSquiggles": "Disabled",

@@ -14,6 +14,7 @@
 #include "app_tools.h"
 #include "gpio_expander.h"
 #include "player.h"
+#include "ringer.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +39,7 @@ void phonetastic_app_init(void) {
     plyr_initialize(set, board_handle, evt);
 
     while(true) {
-        plyr_play_left("/sdcard/ringtone-left.mp3");
+        rngr_play();
         vTaskDelay(5000 / portTICK_PERIOD_MS);
         plyr_play_right("/sdcard/ringtone-right.mp3");
         vTaskDelay(5000 / portTICK_PERIOD_MS);
