@@ -14,7 +14,6 @@
 #include "app_tools.h"
 #include "gpio_expander.h"
 #include "ringer.h"
-#include "player.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
