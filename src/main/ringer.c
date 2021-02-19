@@ -266,7 +266,7 @@ void rngr_finalize() {
     LOGM_FUNC_OUT();
 }
 
-void rngr_start_left(char* uri) {
+void rngr_play_left(char* uri) {
     LOGM_FUNC_IN();
     audio_pipeline_stop(_pipeline_right);
     audio_pipeline_wait_for_stop(_pipeline_right);
@@ -283,7 +283,7 @@ void rngr_start_left(char* uri) {
     LOGM_FUNC_OUT();
 }
 
-void rngr_start_right(char* uri) {
+void rngr_play_right(char* uri) {
     LOGM_FUNC_IN();
     audio_pipeline_stop(_pipeline_left);
     audio_pipeline_wait_for_stop(_pipeline_left);

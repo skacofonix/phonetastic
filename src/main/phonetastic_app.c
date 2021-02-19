@@ -38,9 +38,9 @@ void phonetastic_app_init(void) {
     rngr_initialize(set, board_handle, evt);
 
     while(true) {
-        rngr_start_left("/sdcard/ringtone-left.mp3");
+        rngr_play_left("/sdcard/ringtone-left.mp3");
         vTaskDelay(5000 / portTICK_PERIOD_MS);
-        rngr_start_right("/sdcard/ringtone-right.mp3");
+        rngr_play_right("/sdcard/ringtone-right.mp3");
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 
