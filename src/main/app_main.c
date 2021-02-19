@@ -2,6 +2,7 @@
 
 #include "phonetastic_app.h"
 
+#include "caller.h"
 #include "diag_i2c.h"
 #include "diag_gpio_expander.h"
 #include "gpio_expander.h"
@@ -17,6 +18,7 @@ static const char *TAG = "app_main";
 
 void log_initialize() {
     esp_log_level_set("*", ESP_LOG_INFO);
+    esp_log_level_set(TAG_CALLER, ESP_LOG_VERBOSE);
     esp_log_level_set(TAG_DIAG_GPIO_EXPANDER, ESP_LOG_VERBOSE);
     esp_log_level_set(TAG_DIAG_I2C, ESP_LOG_VERBOSE);
     esp_log_level_set(TAG_GPIO_EXPANDER, ESP_LOG_INFO);

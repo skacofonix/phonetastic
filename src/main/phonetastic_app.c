@@ -12,6 +12,7 @@
 #include "periph_sdcard.h"
 
 #include "app_tools.h"
+#include "caller.h"
 #include "gpio_expander.h"
 #include "player.h"
 #include "ringer.h"
@@ -41,7 +42,7 @@ void phonetastic_app_init(void) {
     while(true) {
         rngr_play();
         vTaskDelay(5000 / portTICK_PERIOD_MS);
-        plyr_play_right("/sdcard/ringtone-right.mp3");
+        cllr_play();
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 

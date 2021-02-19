@@ -3,22 +3,22 @@
 #include "app_tools.h"
 #include "player.h"
 
-#include "ringer.h"
+#include "caller.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char *TAG = TAG_RINGER;
-static char *RINGTONE_PATH = RINGTONE_VINTAGE_PATH;
+static const char *TAG = TAG_CALLER;
+static char *DEFAULT_CALLER_PATH = ELEVATOR_SONG_PATH;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void rngr_play() {
+void cllr_play() {
     LOGM_FUNC_IN();
-    plyr_play_left(RINGTONE_PATH);
+    plyr_play_right(DEFAULT_CALLER_PATH);
     LOGM_FUNC_OUT();
 }
 
-void rngr_stop() {
+void cllr_stop() {
     LOGM_FUNC_IN();
     plyr_stop();
     LOGM_FUNC_OUT();

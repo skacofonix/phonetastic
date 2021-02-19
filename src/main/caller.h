@@ -1,17 +1,17 @@
-#ifndef RINGER_H
-#define RINGER_H
+#ifndef CALLER_H
+#define CALLER_H
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define TAG_RINGER              "ringer"
-#define RINGTONE_VOLUME         50
-#define RINGTONE_VINTAGE_PATH   "/sdcard/ringtones/vintage.mp3"
+#define TAG_CALLER              "CALLER"
+#define PHONE_VOLUME            50
+#define ELEVATOR_SONG_PATH      "/sdcard/callers/elevator-song.mp3"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void rngr_play();
-void rngr_stop();
+void cllr_play();
+void cllr_stop();
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#endif // RINGER_H
+#endif // CALLER_H
