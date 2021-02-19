@@ -11,11 +11,11 @@
 
 #include "app_tools.h"
 
-#include "ringer.h"
+#include "player.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char *TAG = TAG_RINGER;
+static const char *TAG = TAG_PLAYER;
 
 static esp_periph_set_handle_t _set;
 static audio_board_handle_t _board;
@@ -202,7 +202,7 @@ void tx_audioWorker(void *args) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void rngr_initialize(esp_periph_set_handle_t set, audio_board_handle_t board, audio_event_iface_handle_t evt) {
+void plyr_initialize(esp_periph_set_handle_t set, audio_board_handle_t board, audio_event_iface_handle_t evt) {
     LOGM_FUNC_IN();
 
     _set = set;
@@ -233,7 +233,7 @@ void rngr_initialize(esp_periph_set_handle_t set, audio_board_handle_t board, au
     LOGM_FUNC_OUT();
 }
 
-void rngr_finalize() {
+void plyr_finalize() {
     LOGM_FUNC_IN();
     vTaskDelete(tx_audioWorker);
 
@@ -266,7 +266,7 @@ void rngr_finalize() {
     LOGM_FUNC_OUT();
 }
 
-void rngr_play_left(char* uri) {
+void plyr_play_left(char* uri) {
     LOGM_FUNC_IN();
     audio_pipeline_stop(_pipeline_right);
     audio_pipeline_wait_for_stop(_pipeline_right);
@@ -283,7 +283,7 @@ void rngr_play_left(char* uri) {
     LOGM_FUNC_OUT();
 }
 
-void rngr_play_right(char* uri) {
+void plyr_play_right(char* uri) {
     LOGM_FUNC_IN();
     audio_pipeline_stop(_pipeline_left);
     audio_pipeline_wait_for_stop(_pipeline_left);
@@ -300,7 +300,7 @@ void rngr_play_right(char* uri) {
     LOGM_FUNC_OUT();
 }
 
-void rngr_stop(){
+void plyr_stop(){
     LOGM_FUNC_IN();
     audio_pipeline_stop(_pipeline_left);
     audio_pipeline_stop(_pipeline_right);

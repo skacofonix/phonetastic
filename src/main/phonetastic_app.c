@@ -13,7 +13,7 @@
 
 #include "app_tools.h"
 #include "gpio_expander.h"
-#include "ringer.h"
+#include "player.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -35,12 +35,12 @@ void phonetastic_app_init(void) {
     audio_event_iface_cfg_t evt_cfg = AUDIO_EVENT_IFACE_DEFAULT_CFG();
     audio_event_iface_handle_t evt = audio_event_iface_init(&evt_cfg);
 
-    rngr_initialize(set, board_handle, evt);
+    plyr_initialize(set, board_handle, evt);
 
     while(true) {
-        rngr_play_left("/sdcard/ringtone-left.mp3");
+        plyr_play_left("/sdcard/ringtone-left.mp3");
         vTaskDelay(5000 / portTICK_PERIOD_MS);
-        rngr_play_right("/sdcard/ringtone-right.mp3");
+        plyr_play_right("/sdcard/ringtone-right.mp3");
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 

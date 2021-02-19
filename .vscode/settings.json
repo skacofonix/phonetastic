@@ -80,7 +80,9 @@
     "optional": "c",
     "utility": "c",
     "memory": "c",
-    "i2c_driver.h": "c"
+    "i2c_driver.h": "c",
+    "player.h": "c",
+    "diag_gpio_expander.h": "c"
   },
   "C_Cpp.intelliSenseEngineFallback": "Disabled",
   "C_Cpp.errorSquiggles": "Disabled",
