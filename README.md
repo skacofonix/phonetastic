@@ -2,9 +2,11 @@
 
 GeoCache interractive sur le thème téléphone S63 rétro.
 
+
 ## Materiel
 
 Carte Lyra-t v4.3 basé sur un ESP-32
+
 
 ## Audio
 
@@ -15,12 +17,11 @@ Le dispositif est équipé de 2 périphériques de sortie audio.
 
 Historiquement, une sonnerie de téléphone d'un S63 utilise une sonette qui fonctionne à l'aide d'un marteau qui viens taper entre 2 cloches.
 Le marteau est mis en mouvement à l'aide d'une bobine et d'un aimant.
-Ce dispositif, est trop energivor epour le faire fonctionner sur pile, aussi une solution de remplacement utilisant une enceinte jouant un son de "vielle sonnerie" est a préferer.
+Ce dispositif, est trop energivore pour le faire fonctionner sur pile, aussi une solution de remplacement utilisant une enceinte jouant un son de "vielle sonnerie" est a préferer.
 
-La carte Lyra-T est muni de 2 canaux audio.
-Chaqun de ces canaux sera utilisé pour
+La carte Lyra-T est munie de 2 canaux audio.
 
-Techniquement il y'a plueirus façon pour mettre en oeuvre ces 2 canaux :
+Techniquement il y'a plusieurs façon pour mettre en oeuvre ces 2 canaux :
 
 - 2 canaux de lecture, un LEFT, un RIGHT
   -- Le plus "simple" d'un point de vue player
@@ -35,11 +36,10 @@ Techniquement il y'a plueirus façon pour mettre en oeuvre ces 2 canaux :
   -- A voir les risque de bruit parasite ou de débordement sur l'autre canal
 
 Après plusieurs essais réalisée il apparait qu'il faut 2 pipeline avec des fichiers gauche et des fichiers droits.
-L'usage des 2 pipeline permet de jongler plus facilement sur l'utilisation du create_fatfs_stream_writer qui peux être utiliser en RIGH only ou LEFT only.
+L'usage des 2 pipeline permet de jongler plus facilement sur l'utilisation du create_fatfs_stream_writer qui peux être utilisé en RIGH only ou LEFT only.
 1 seule pipeline audio, avec des fichiers audio LEFT ou RIGHT.
-Attention, pour que le son ne sorte que par un seul des canals, il faut bien enregistrer le son en stéré avec l'autre piste muette.
+Attention, pour que le son ne sorte que par un seul des canals, il faut bien enregistrer le son en stéréo avec l'autre piste muette.
 Attention, via la prise jack le son sort en stéréo.
-
 
 
 ## GPIO EXPANDER
@@ -66,3 +66,8 @@ Vitesse de fonctionnement constatée : 100 000 Hz
 
 Lors des derniers tests, les deux modes ont fonctionnés avec succès.
 Le mode **Evenementiel** est à privilégier.
+
+
+**Atention** l'initialisation du bus I2C échoue si l'on démarre dés lors que l'on initialise la partie audio de la LyraT.
+
+**Attention** il  ne peux y avoir qu'un seul abonnement aux evenement de la board. C'est le dernier à s'abonner qui a raison.
