@@ -6,6 +6,7 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
+#include <time.h>
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -33,11 +34,16 @@
 #include "sdcard_list.h"
 #include "sdcard_scan.h"
 
+#include "gpio_expander.h"
+
 static const char *TAG = "SDCARD_MP3_CONTROL_EXAMPLE";
 
 audio_pipeline_handle_t pipeline;
 audio_element_handle_t i2s_stream_writer, mp3_decoder, fatfs_stream_reader, rsp_handle;
 playlist_operator_handle_t sdcard_list_handle = NULL;
+
+static clock_t previousTimeEvent;
+static uint8_t previousGp0value = 0;
 
 static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_service_event_t *evt, void *ctx)
 {
@@ -47,6 +53,44 @@ static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_ser
     audio_board_handle_t board_handle = (audio_board_handle_t) ctx;
     int player_volume;
     audio_hal_get_volume(board_handle->audio_hal, &player_volume);
+
+
+    if(evt->type == INPUT_KEY_SERVICE_ACTION_CLICK) {
+        if((int)evt->data == INPUT_KEY_USER_ID_REC) {
+            uint8_t gp0value;
+            if(gpxp_readRegisterWithRetry(REGISTER_INTCAP0, &gp0value, 5) != ESP_OK) {
+                ESP_LOGE(TAG, "Fail to read INTCAP0!");
+            } else {
+                if(gp0value == previousGp0value) {
+                    ESP_LOGD(TAG, "No change on GP0!");
+                } else {
+                    previousGp0value = gp0value;
+
+                    clock_t currentTimeEvent = clock();
+                    double duration = (double)(currentTimeEvent - previousTimeEvent) / CLOCKS_PER_SEC;
+                    previousTimeEvent = currentTimeEvent;
+
+                    ESP_LOGI(TAG, "GP0: %#02x (%lf)", gp0value, duration);
+
+                    if(gp0value == 0x8) {
+                        ESP_LOGI(TAG, "[ * ] PLAY NEXT");
+                        ESP_LOGI(TAG, "[ * ] Stopped, advancing to the next song");
+                        char *url = NULL;
+                        audio_pipeline_stop(pipeline);
+                        audio_pipeline_wait_for_stop(pipeline);
+                        audio_pipeline_terminate(pipeline);
+                        sdcard_list_next(sdcard_list_handle, 1, &url);
+                        ESP_LOGW(TAG, "URL: %s", url);
+                        audio_element_set_uri(fatfs_stream_reader, url);
+                        audio_pipeline_reset_ringbuffer(pipeline);
+                        audio_pipeline_reset_elements(pipeline);
+                        audio_pipeline_run(pipeline);
+                    }
+                    //cllr_play();
+                }
+            }
+        }
+    }
 
     if (evt->type == INPUT_KEY_SERVICE_ACTION_CLICK_RELEASE) {
         ESP_LOGI(TAG, "[ * ] input key id is %d", (int)evt->data);
@@ -130,6 +174,7 @@ void play_sdcard_mp3_control_example(void)
     ESP_LOGI(TAG, "[1.1] Initialize and start peripherals");
     audio_board_key_init(set);
     audio_board_sdcard_init(set, SD_MODE_1_LINE);
+    // KO
 
     ESP_LOGI(TAG, "[1.2] Set up a sdcard playlist and scan sdcard music save to it");
     sdcard_list_create(&sdcard_list_handle);
@@ -139,6 +184,10 @@ void play_sdcard_mp3_control_example(void)
     ESP_LOGI(TAG, "[ 2 ] Start codec chip");
     audio_board_handle_t board_handle = audio_board_init();
     audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_DECODE, AUDIO_HAL_CTRL_START);
+
+    // MAYBE
+    gpxp_initialize();
+    gpxp_writeRegister(REGISTER_GP1, 0xFF);
 
     ESP_LOGI(TAG, "[ 3 ] Create and start input key service");
     input_key_service_info_t input_key_info[] = INPUT_KEY_DEFAULT_INFO();
@@ -195,6 +244,8 @@ void play_sdcard_mp3_control_example(void)
 
     ESP_LOGI(TAG, "[5.1] Listen for all pipeline events");
     audio_pipeline_set_listener(pipeline, evt);
+
+    audio_hal_set_volume(board_handle->audio_hal, 10);
 
     ESP_LOGW(TAG, "[ 6 ] Press the keys to control music player:");
     ESP_LOGW(TAG, "      [Play] to start, pause and resume, [Set] next song.");
