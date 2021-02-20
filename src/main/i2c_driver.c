@@ -42,11 +42,11 @@ esp_err_t i2c_initialize() {
         ESP_ERROR_CHECK_WITHOUT_ABORT(err);
     }
 
-    err = i2c_driver_install(I2C_MASTER_NUM, conf.mode, I2C_MASTER_RX_BUF_DISABLE, I2C_MASTER_TX_BUF_DISABLE, 0);
-    if(err != ESP_OK) {
-        ESP_LOGE(TAG, "Fail to i2c_driver_install!");
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
-    }
+    // err = i2c_driver_install(I2C_MASTER_NUM, conf.mode, I2C_MASTER_RX_BUF_DISABLE, I2C_MASTER_TX_BUF_DISABLE, 0);
+    // if(err != ESP_OK) {
+    //     ESP_LOGE(TAG, "Fail to i2c_driver_install!");
+    //     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+    // }
 
     end:
     if(err == ESP_OK) {
