@@ -31,10 +31,17 @@ static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_ser
            to start, pause, resume, finish current song and adjust volume
         */
 
-    ESP_LOGI(TAG, "[ * ] input key id is %d", (int)evt->data);
+    if(evt->type == INPUT_KEY_SERVICE_ACTION_CLICK_RELEASE) {
+        ESP_LOGI(TAG, "[ * ] BUTTON RELEASED");
+        if((int)evt->data == INPUT_KEY_USER_ID_REC) {
+            ESP_LOGI(TAG, "[ * ] REC PRESSED");
+        }
+    }
 
-    if (evt->type == INPUT_KEY_SERVICE_ACTION_CLICK_RELEASE) {
-        ESP_LOGI(TAG, "[ * ] input key id is %d", (int)evt->data);
+
+
+    // if (evt->type == INPUT_KEY_SERVICE_ACTION_CLICK_RELEASE) {
+    //     ESP_LOGI(TAG, "[ * ] input key id is %d", (int)evt->data);
         // switch ((int)evt->data) {
         //     case INPUT_KEY_USER_ID_PLAY:
         //         ESP_LOGI(TAG, "[ * ] [Play] input key event");
@@ -89,7 +96,7 @@ static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_ser
             //     ESP_LOGI(TAG, "[ * ] Volume set to %d %%", player_volume);
             //     break;
         //}
-    }
+    // }
 
     return ESP_OK;
 }
@@ -151,13 +158,8 @@ void phonetastic_app_init(void) {
     audio_board_handle_t board_handle = audio_board_init();
     audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_DECODE, AUDIO_HAL_CTRL_START);
 
-    audio_event_iface_cfg_t evt_cfg = AUDIO_EVENT_IFACE_DEFAULT_CFG();
-    audio_event_iface_handle_t evt = audio_event_iface_init(&evt_cfg);
-
-    plyr_initialize(set, board_handle, evt);
-
     //
-    
+
     ESP_LOGI(TAG, "[ 3 ] Create and start input key service");
     input_key_service_info_t input_key_info[] = INPUT_KEY_DEFAULT_INFO();
     input_key_service_cfg_t input_cfg = INPUT_KEY_SERVICE_DEFAULT_CONFIG();
@@ -165,6 +167,17 @@ void phonetastic_app_init(void) {
     periph_service_handle_t input_ser = input_key_service_create(&input_cfg);
     input_key_service_add_key(input_ser, input_key_info, INPUT_KEY_NUM);
     periph_service_set_callback(input_ser, input_key_service_cb, (void *)board_handle);
+
+    //
+
+    audio_event_iface_cfg_t evt_cfg = AUDIO_EVENT_IFACE_DEFAULT_CFG();
+    audio_event_iface_handle_t evt = audio_event_iface_init(&evt_cfg);
+
+    plyr_initialize(set, board_handle, evt);
+
+    //
+    
+    
 
     //
 
@@ -180,10 +193,7 @@ void phonetastic_app_init(void) {
     //rngr_play();
 
     while(true) {
-        
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
-        
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        vTaskDelay(500 / portTICK_PERIOD_MS);
     }
 
     LOGM_FUNC_OUT();

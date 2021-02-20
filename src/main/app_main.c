@@ -7,6 +7,7 @@
 #include "diag_gpio_expander.h"
 #include "gpio_expander.h"
 #include "i2c_driver.h"
+#include "play_sdcard_mp3_control_example.h"
 #include "player.h"
 #include "ringer.h"
 
@@ -44,8 +45,9 @@ void app_main(void) {
 
     // ESP_ERROR_CHECK(diag_i2c_check());
     // ESP_ERROR_CHECK(diag_gpio_expander_check());
+    play_sdcard_mp3_control_example();
 
-    phonetastic_app_init();
+    //phonetastic_app_init();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
