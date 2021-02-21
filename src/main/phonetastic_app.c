@@ -35,6 +35,7 @@ static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_ser
         ESP_LOGI(TAG, "[ * ] BUTTON RELEASED");
         if((int)evt->data == INPUT_KEY_USER_ID_REC) {
             ESP_LOGI(TAG, "[ * ] REC PRESSED");
+            cllr_play();
         }
     }
 
@@ -135,7 +136,7 @@ static esp_err_t _periph_event_handle(audio_event_iface_msg_t *event, void *cont
 
                 ESP_LOGI(TAG, "GP0: %#02x (%lf)", gp0value, duration);
 
-                //cllr_play();
+                // cllr_play();
             }
         }
     }
@@ -153,10 +154,12 @@ void phonetastic_app_init(void) {
 
     audio_board_key_init(set);
     audio_board_sdcard_init(set, SD_MODE_1_LINE);
-    //gpxp_initialize();
 
     audio_board_handle_t board_handle = audio_board_init();
     audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_DECODE, AUDIO_HAL_CTRL_START);
+
+    gpxp_initialize(false);
+    gpxp_writeRegister(REGISTER_GP1, 0xFF);
 
     //
 
@@ -177,10 +180,6 @@ void phonetastic_app_init(void) {
 
     //
     
-    
-
-    //
-
     //esp_periph_set_register_callback(set, _periph_event_handle, NULL);
     // periph_button_cfg_t btn_cfg = {
     //     .gpio_mask = (1ULL << get_input_rec_id())
@@ -190,7 +189,7 @@ void phonetastic_app_init(void) {
     
     //
 
-    //rngr_play();
+    rngr_play();
 
     while(true) {
         vTaskDelay(500 / portTICK_PERIOD_MS);

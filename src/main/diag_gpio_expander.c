@@ -163,7 +163,7 @@ esp_err_t diag_gpio_expander_check(void) {
     err = i2c_ping(GPIO_EXPANDER_ADDR);
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
 
-    err = gpxp_initialize();
+    err = gpxp_initialize(true);
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
 
     err = gpxp_writeRegister(GPXP_REGISTER_OUT, 0x00);

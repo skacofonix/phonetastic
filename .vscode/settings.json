@@ -85,7 +85,8 @@
     "diag_gpio_expander.h": "c",
     "audio_event_iface.h": "c",
     "ringer.h": "c",
-    "input_key_com_user_id.h": "c"
+    "input_key_com_user_id.h": "c",
+    "stdlib.h": "c"
   },
   "C_Cpp.intelliSenseEngineFallback": "Disabled",
   "C_Cpp.errorSquiggles": "Disabled",

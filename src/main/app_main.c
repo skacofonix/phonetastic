@@ -22,9 +22,9 @@ void log_initialize() {
     esp_log_level_set(TAG_CALLER, ESP_LOG_VERBOSE);
     esp_log_level_set(TAG_DIAG_GPIO_EXPANDER, ESP_LOG_VERBOSE);
     esp_log_level_set(TAG_DIAG_I2C, ESP_LOG_VERBOSE);
-    esp_log_level_set(TAG_GPIO_EXPANDER, ESP_LOG_INFO);
+    esp_log_level_set(TAG_GPIO_EXPANDER, ESP_LOG_VERBOSE);
     esp_log_level_set(TAG_I2C_DRIVER, ESP_LOG_VERBOSE);
-    esp_log_level_set(TAG_PHONETASTIC_APP, ESP_LOG_INFO);
+    esp_log_level_set(TAG_PHONETASTIC_APP, ESP_LOG_VERBOSE);
     esp_log_level_set(TAG_PLAYER, ESP_LOG_VERBOSE);
     esp_log_level_set(TAG_RINGER, ESP_LOG_VERBOSE);
 
@@ -45,9 +45,9 @@ void app_main(void) {
 
     // ESP_ERROR_CHECK(diag_i2c_check());
     // ESP_ERROR_CHECK(diag_gpio_expander_check());
-    play_sdcard_mp3_control_example();
+    // play_sdcard_mp3_control_example();
 
-    //phonetastic_app_init();
+    phonetastic_app_init();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

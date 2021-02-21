@@ -49,7 +49,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-esp_err_t gpxp_initialize();
+esp_err_t gpxp_initialize(bool i2cInstallDriver);
 esp_err_t gpxp_readRegister(uint8_t registerId, uint8_t *data);
 esp_err_t gpxp_readRegisterWithRetry(uint8_t registerId, uint8_t *data, uint8_t nbRetry);
 esp_err_t gpxp_writeRegister(uint8_t registerId, uint8_t data);

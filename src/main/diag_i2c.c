@@ -67,7 +67,7 @@ esp_err_t diag_i2c_check(void) {
     ESP_LOGI(TAG, "Ping known devices without i2c initialize:");
     ping_i2c_slave_without_driver(I2C_MASTER_NUM, GPIO_EXPANDER_ADDR);
 
-    err = i2c_initialize();
+    err = i2c_initialize(true);
     ESP_ERROR_CHECK(err);
 
     ESP_LOGI(TAG, "Ping known devices:");

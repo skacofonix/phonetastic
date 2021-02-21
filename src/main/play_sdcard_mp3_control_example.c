@@ -186,7 +186,7 @@ void play_sdcard_mp3_control_example(void)
     audio_hal_ctrl_codec(board_handle->audio_hal, AUDIO_HAL_CODEC_MODE_DECODE, AUDIO_HAL_CTRL_START);
 
     // MAYBE
-    gpxp_initialize();
+    gpxp_initialize(false);
     gpxp_writeRegister(REGISTER_GP1, 0xFF);
 
     ESP_LOGI(TAG, "[ 3 ] Create and start input key service");
