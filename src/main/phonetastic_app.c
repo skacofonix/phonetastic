@@ -237,6 +237,7 @@ void phonetastic_app_init(void) {
                 audio_element_getinfo(_audio_decoder, &music_info);
                 ESP_LOGI(TAG, "[ * ] Received music info from mp3 decoder, sample_rates=%d, bits=%d, ch=%d", music_info.sample_rates, music_info.bits, music_info.channels);
                 audio_element_setinfo(_i2s_stream_writer, &music_info);
+                i2s_stream_set_clk(_i2s_stream_writer, music_info.sample_rates, music_info.bits, music_info.channels);
                 continue;
             }
         }
