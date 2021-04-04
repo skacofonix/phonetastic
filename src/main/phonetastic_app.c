@@ -34,6 +34,12 @@
 #define RINGTONE_VINTAGE_PATH   "/sdcard/ringtones/vintage.mp3"
 #define ELEVATOR_SONG_PATH      "/sdcard/callers/elevator-song.mp3"
 
+#define PHONE_SWITCH            0x08
+#define PLUG_1                  0x10
+#define PLUG_2                  0x20
+#define PLUG_3                  0x40
+#define PLUG_4                  0x80
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static const char *TAG = "PHONETASTIC";
@@ -148,6 +154,24 @@ static void stop() {
 static clock_t previousTimeEvent;
 static uint8_t previousGp0value = 0;
 
+static void ReadInput(uint8_t currentValue, uint8_t previousValue, uint16_t mask) {
+    LOGM_FUNC_IN();
+    
+    ESP_LOGD(TAG, "currentValue:%#02x, previousValue:%#02x, mask:%#02x", currentValue, currentValue, mask);
+
+    if((currentValue & mask) != (previousValue & mask)) {
+        // Change value detected
+
+        if((currentValue & mask) != 0) {
+            ESP_LOGI(TAG, "%#02x => 1", mask);
+        } else {
+            ESP_LOGI(TAG, "%#02x => 0", mask);
+        }
+    }
+
+    LOGM_FUNC_OUT();
+}
+
 static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_service_event_t *evt, void *ctx) {
     LOGM_FUNC_IN();
 
@@ -160,6 +184,13 @@ static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_ser
                 if(gp0value == previousGp0value) {
                     ESP_LOGD(TAG, "No change on GP0!");
                 } else {
+
+                    ReadInput(gp0value, previousGp0value, PHONE_SWITCH);
+                    ReadInput(gp0value, previousGp0value, PLUG_1);
+                    ReadInput(gp0value, previousGp0value, PLUG_2);
+                    ReadInput(gp0value, previousGp0value, PLUG_3);
+                    ReadInput(gp0value, previousGp0value, PLUG_4);
+
                     previousGp0value = gp0value;
 
                     clock_t currentTimeEvent = clock();
@@ -168,8 +199,8 @@ static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_ser
 
                     ESP_LOGI(TAG, "GP0: %#02x (%lf)", gp0value, duration);
 
-                    stop();
-                    if(gp0value == 0x8) {
+                    if((gp0value & PHONE_SWITCH) != 0) {
+                         stop();
                         play_phone(ELEVATOR_SONG_PATH);
                     }
                 }
@@ -195,7 +226,7 @@ void phonetastic_app_init(void) {
     _board = audio_board_init();
     audio_hal_ctrl_codec(_board->audio_hal, AUDIO_HAL_CODEC_MODE_DECODE, AUDIO_HAL_CTRL_START);
 
-    //
+    // O
 
     ESP_LOGI(TAG, "[ 3 ] Create and start input key service");
     input_key_service_info_t input_key_info[] = INPUT_KEY_DEFAULT_INFO();
