@@ -132,6 +132,14 @@ esp_err_t gpxp_readRegister(uint8_t register_id, uint8_t *data) {
     return err;
 }
 
+esp_err_t gpxp_readRegisterWithRetry10(uint8_t registerId, uint8_t *data) {
+    LOGM_FUNC_IN();
+    esp_err_t err = ESP_FAIL;
+    err = gpxp_readRegisterWithRetry(registerId, data, 10);
+    LOGM_FUNC_OUT();
+    return err;
+}
+
 esp_err_t gpxp_readRegisterWithRetry(uint8_t registerId, uint8_t *data, uint8_t nbRetry) {
     LOGM_FUNC_IN();
 
