@@ -34,11 +34,7 @@
 #define RINGTONE_VINTAGE_PATH   "/sdcard/ringtones/vintage.mp3"
 #define ELEVATOR_SONG_PATH      "/sdcard/callers/elevator-song.mp3"
 
-#define PHONE_SWITCH            0x08
-#define PLUG_1                  0x10
-#define PLUG_2                  0x20
-#define PLUG_3                  0x40
-#define PLUG_4                  0x80
+#define PHONE_SWITCH            0x01
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -151,6 +147,77 @@ static void stop() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#define GPXP_REGISTER_IN        REGISTER_GP0
+#define GPXP_REGISTER_OUT       REGISTER_GP1
+
+#define     COLUMN_1  0x80
+#define     COLUMN_2  0x40
+#define     COLUMN_3  0x20
+#define     LINE_1  0x01
+#define     LINE_2  0x02
+#define     LINE_3  0x04
+#define     LINE_4  0x08
+#define     LINE_5  0x10
+
+void read_matrix() {
+    uint8_t data;
+    esp_err_t err;
+
+    gpxp_writeRegister(GPXP_REGISTER_OUT, 0x00);
+
+    vTaskDelay(10 / portTICK_RATE_MS);
+    gpxp_writeRegister(GPXP_REGISTER_OUT, COLUMN_1);
+    vTaskDelay(10 / portTICK_RATE_MS);
+
+    err = gpxp_readRegisterWithRetry10(GPXP_REGISTER_IN, &data);
+    ESP_LOGI(TAG, "============");
+
+    if(err != ESP_OK) {
+        ESP_LOGE(TAG, "Fail to read line");
+    } else {
+        ESP_LOGI(TAG, "1: %i %i %i %i %i",
+            ((data & LINE_1) == 0) ? 0 : 1,
+            ((data & LINE_2) == 0) ? 0 : 1,
+            ((data & LINE_3) == 0) ? 0 : 1,
+            ((data & LINE_4) == 0) ? 0 : 1,
+            ((data & LINE_5) == 0) ? 0 : 1);
+    }
+
+    vTaskDelay(10 / portTICK_RATE_MS);
+    gpxp_writeRegister(GPXP_REGISTER_OUT, COLUMN_2);
+    vTaskDelay(10 / portTICK_RATE_MS);
+
+    err = gpxp_readRegisterWithRetry10(GPXP_REGISTER_IN, &data);
+    if(err != ESP_OK) {
+        ESP_LOGE(TAG, "Fail to read line");
+    } else {
+        ESP_LOGI(TAG, "2: %i %i %i %i %i",
+            ((data & LINE_1) == 0) ? 0 : 1,
+            ((data & LINE_2) == 0) ? 0 : 1,
+            ((data & LINE_3) == 0) ? 0 : 1,
+            ((data & LINE_4) == 0) ? 0 : 1,
+            ((data & LINE_5) == 0) ? 0 : 1);
+    }
+
+    vTaskDelay(10 / portTICK_RATE_MS);
+    gpxp_writeRegister(GPXP_REGISTER_OUT, COLUMN_3);
+    vTaskDelay(10 / portTICK_RATE_MS);
+
+    err = gpxp_readRegisterWithRetry10(GPXP_REGISTER_IN, &data);
+    if(err != ESP_OK) {
+        ESP_LOGE(TAG, "Fail to read line");
+    } else {
+        ESP_LOGI(TAG, "3: %i %i %i %i %i",
+            ((data & LINE_1) == 0) ? 0 : 1,
+            ((data & LINE_2) == 0) ? 0 : 1,
+            ((data & LINE_3) == 0) ? 0 : 1,
+            ((data & LINE_4) == 0) ? 0 : 1,
+            ((data & LINE_5) == 0) ? 0 : 1);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 static clock_t previousTimeEvent;
 static uint8_t previousGp0value = 0;
 
@@ -178,19 +245,12 @@ static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_ser
     if(evt->type == INPUT_KEY_SERVICE_ACTION_CLICK) {
         if((int)evt->data == INPUT_KEY_USER_ID_REC) {
             uint8_t gp0value;
-            if(gpxp_readRegisterWithRetry(REGISTER_INTCAP0, &gp0value, 5) != ESP_OK) {
+            if(gpxp_readRegisterWithRetry10(REGISTER_INTCAP0, &gp0value) != ESP_OK) {
                 ESP_LOGE(TAG, "Fail to read INTCAP0!");
             } else {
                 if(gp0value == previousGp0value) {
                     ESP_LOGD(TAG, "No change on GP0!");
-                } else {
-
-                    ReadInput(gp0value, previousGp0value, PHONE_SWITCH);
-                    ReadInput(gp0value, previousGp0value, PLUG_1);
-                    ReadInput(gp0value, previousGp0value, PLUG_2);
-                    ReadInput(gp0value, previousGp0value, PLUG_3);
-                    ReadInput(gp0value, previousGp0value, PLUG_4);
-
+                } else if(gp0value == PHONE_SWITCH) {
                     previousGp0value = gp0value;
 
                     clock_t currentTimeEvent = clock();
@@ -199,10 +259,12 @@ static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_ser
 
                     ESP_LOGI(TAG, "GP0: %#02x (%lf)", gp0value, duration);
 
-                    if((gp0value & PHONE_SWITCH) != 0) {
-                         stop();
+                    if(gp0value != 0) {
+                        stop();
                         play_phone(ELEVATOR_SONG_PATH);
                     }
+                } else {
+                    read_matrix();
                 }
             }
         }
@@ -210,80 +272,6 @@ static esp_err_t input_key_service_cb(periph_service_handle_t handle, periph_ser
 
     LOGM_FUNC_OUT();
     return ESP_OK;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-// Read matrix
-
-#define GPXP_REGISTER_IN        REGISTER_GP0
-#define GPXP_REGISTER_OUT       REGISTER_GP1
-
-#define     COLUMN_1  0x80
-#define     COLUMN_2  0x40
-#define     COLUMN_3  0x20
-#define     LINE_1  0x80
-#define     LINE_2  0x40
-#define     LINE_3  0x20
-#define     LINE_4  0x10
-#define     LINE_5  0x08
-
-void read_matrix() {
-    uint8_t line_data;
-    esp_err_t err;
-
-    gpxp_writeRegister(GPXP_REGISTER_OUT, 0x00);
-
-    while(true) {
-        vTaskDelay(10 / portTICK_RATE_MS);
-        gpxp_writeRegister(GPXP_REGISTER_OUT, COLUMN_1);
-        vTaskDelay(10 / portTICK_RATE_MS);
-
-        err = gpxp_readRegisterWithRetry10(GPXP_REGISTER_IN, &line_data);
-        if(err != ESP_OK) {
-            ESP_LOGE(TAG, "Fail to read line");
-        } else {
-            if((line_data & LINE_1) != 0) ESP_LOGI(TAG, "C1L1 plugged");
-            if((line_data & LINE_2) != 0) ESP_LOGI(TAG, "C1L2 plugged");
-            if((line_data & LINE_3) != 0) ESP_LOGI(TAG, "C1L3 plugged");
-            if((line_data & LINE_4) != 0) ESP_LOGI(TAG, "C1L4 plugged");
-            if((line_data & LINE_5) != 0) ESP_LOGI(TAG, "C1L5 plugged");
-        }
-
-        //
-
-        vTaskDelay(10 / portTICK_RATE_MS);
-        gpxp_writeRegister(GPXP_REGISTER_OUT, COLUMN_2);
-        vTaskDelay(10 / portTICK_RATE_MS);
-
-        err = gpxp_readRegisterWithRetry10(GPXP_REGISTER_IN, &line_data);
-        if(err != ESP_OK) {
-            ESP_LOGE(TAG, "Fail to read line");
-        } else {
-            if((line_data & LINE_1) != 0) ESP_LOGI(TAG, "C2L1 plugged");
-            if((line_data & LINE_2) != 0) ESP_LOGI(TAG, "C2L2 plugged");
-            if((line_data & LINE_3) != 0) ESP_LOGI(TAG, "C2L3 plugged");
-            if((line_data & LINE_4) != 0) ESP_LOGI(TAG, "C2L4 plugged");
-            if((line_data & LINE_5) != 0) ESP_LOGI(TAG, "C2L5 plugged");
-        }
-
-         //
-
-        vTaskDelay(10 / portTICK_RATE_MS);
-        gpxp_writeRegister(GPXP_REGISTER_OUT, COLUMN_3);
-        vTaskDelay(10 / portTICK_RATE_MS);
-
-        err = gpxp_readRegisterWithRetry10(GPXP_REGISTER_IN, &line_data);
-        if(err != ESP_OK) {
-            ESP_LOGE(TAG, "Fail to read line");
-        } else {
-            if((line_data & LINE_1) != 0) ESP_LOGI(TAG, "C3L1 plugged");
-            if((line_data & LINE_2) != 0) ESP_LOGI(TAG, "C3L2 plugged");
-            if((line_data & LINE_3) != 0) ESP_LOGI(TAG, "C3L3 plugged");
-            if((line_data & LINE_4) != 0) ESP_LOGI(TAG, "C3L4 plugged");
-            if((line_data & LINE_5) != 0) ESP_LOGI(TAG, "C3L5 plugged");
-        }
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -302,20 +290,18 @@ void phonetastic_app_init(void) {
 
     //
 
-    //ESP_LOGI(TAG, "[ 3 ] Create and start input key service");
-    //input_key_service_info_t input_key_info[] = INPUT_KEY_DEFAULT_INFO();
-    //input_key_service_cfg_t input_cfg = INPUT_KEY_SERVICE_DEFAULT_CONFIG();
-    //input_cfg.handle = set;
-    //periph_service_handle_t input_ser = input_key_service_create(&input_cfg);
-    //input_key_service_add_key(input_ser, input_key_info, INPUT_KEY_NUM);
-    // WARNING: Diable Calback
-    //periph_service_set_callback(input_ser, input_key_service_cb, (void *)_board);
+    ESP_LOGI(TAG, "[ 3 ] Create and start input key service");
+    input_key_service_info_t input_key_info[] = INPUT_KEY_DEFAULT_INFO();
+    input_key_service_cfg_t input_cfg = INPUT_KEY_SERVICE_DEFAULT_CONFIG();
+    input_cfg.handle = set;
+    periph_service_handle_t input_ser = input_key_service_create(&input_cfg);
+    input_key_service_add_key(input_ser, input_key_info, INPUT_KEY_NUM);
+    periph_service_set_callback(input_ser, input_key_service_cb, (void *)_board);
 
     //
 
     gpxp_initialize(false);
     gpxp_writeRegister(REGISTER_GP1, 0xFF);
-    read_matrix();
 
     //
 
