@@ -159,6 +159,7 @@ static void stop() {
 #define     LINE_4  0x08
 #define     LINE_5  0x10
 
+// Read input matrix once time
 void read_matrix() {
     uint8_t data;
     esp_err_t err;
