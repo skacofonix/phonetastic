@@ -63,7 +63,7 @@ static esp_err_t gpxp_writeRegister_internal(uint8_t register_id, uint8_t data) 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-esp_err_t gpxp_initialize() {
+esp_err_t gpxp_initialize(bool i2cInstallDriver) {
     LOGM_FUNC_IN();
 
     esp_err_t err = ESP_FAIL;
@@ -75,7 +75,7 @@ esp_err_t gpxp_initialize() {
     }
 
     // Initialize I2C
-    err = i2c_initialize();
+    err = i2c_initialize(i2cInstallDriver);
     if(err != ESP_OK) {
         ESP_LOGE(TAG, "Fail to i2c_initialize!");
         goto end;
@@ -128,6 +128,14 @@ esp_err_t gpxp_readRegister(uint8_t register_id, uint8_t *data) {
     }
 
     end:
+    LOGM_FUNC_OUT();
+    return err;
+}
+
+esp_err_t gpxp_readRegisterWithRetry10(uint8_t registerId, uint8_t *data) {
+    LOGM_FUNC_IN();
+    esp_err_t err = ESP_FAIL;
+    err = gpxp_readRegisterWithRetry(registerId, data, 10);
     LOGM_FUNC_OUT();
     return err;
 }

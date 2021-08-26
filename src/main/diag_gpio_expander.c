@@ -17,8 +17,8 @@
 
 static const char *TAG = TAG_DIAG_GPIO_EXPANDER;
 
-#define GPXP_REGISTER_OUT       REGISTER_GP1
 #define GPXP_REGISTER_IN        REGISTER_GP0
+#define GPXP_REGISTER_OUT       REGISTER_GP1
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -156,6 +156,77 @@ void read_input_inter(double duration_s) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Read matrix
+
+#define     COLUMN_1  0x01
+#define     COLUMN_2  0x02
+#define     COLUMN_3  0x04
+#define     LINE_1  0x01
+#define     LINE_2  0x02
+#define     LINE_3  0x04
+#define     LINE_4  0x08
+#define     LINE_5  0x10
+
+void read_matrix() {
+    uint8_t line_data;
+    esp_err_t err;
+
+    gpxp_writeRegister(GPXP_REGISTER_OUT, 0x00);
+
+    while(true) {
+        vTaskDelay(10 / portTICK_RATE_MS);
+        gpxp_writeRegister(GPXP_REGISTER_OUT, COLUMN_1);
+        vTaskDelay(10 / portTICK_RATE_MS);
+
+        err = gpxp_readRegisterWithRetry10(GPXP_REGISTER_IN, &line_data);
+        if(err != ESP_OK) {
+            ESP_LOGE(TAG, "Fail to read line");
+        } else {
+            if((line_data & LINE_1) != 0) ESP_LOGI(TAG, "C1L1 plugged");
+            if((line_data & LINE_2) != 0) ESP_LOGI(TAG, "C1L2 plugged");
+            if((line_data & LINE_3) != 0) ESP_LOGI(TAG, "C1L3 plugged");
+            if((line_data & LINE_4) != 0) ESP_LOGI(TAG, "C1L4 plugged");
+            if((line_data & LINE_5) != 0) ESP_LOGI(TAG, "C1L5 plugged");
+        }
+
+        //
+
+        vTaskDelay(10 / portTICK_RATE_MS);
+        gpxp_writeRegister(GPXP_REGISTER_OUT, COLUMN_2);
+        vTaskDelay(10 / portTICK_RATE_MS);
+
+        err = gpxp_readRegisterWithRetry10(GPXP_REGISTER_IN, &line_data);
+        if(err != ESP_OK) {
+            ESP_LOGE(TAG, "Fail to read line");
+        } else {
+            if((line_data & LINE_1) != 0) ESP_LOGI(TAG, "C2L1 plugged");
+            if((line_data & LINE_2) != 0) ESP_LOGI(TAG, "C2L2 plugged");
+            if((line_data & LINE_3) != 0) ESP_LOGI(TAG, "C2L3 plugged");
+            if((line_data & LINE_4) != 0) ESP_LOGI(TAG, "C2L4 plugged");
+            if((line_data & LINE_5) != 0) ESP_LOGI(TAG, "C2L5 plugged");
+        }
+
+         //
+
+        vTaskDelay(10 / portTICK_RATE_MS);
+        gpxp_writeRegister(GPXP_REGISTER_OUT, COLUMN_3);
+        vTaskDelay(10 / portTICK_RATE_MS);
+
+        err = gpxp_readRegisterWithRetry10(GPXP_REGISTER_IN, &line_data);
+        if(err != ESP_OK) {
+            ESP_LOGE(TAG, "Fail to read line");
+        } else {
+            if((line_data & LINE_1) != 0) ESP_LOGI(TAG, "C3L1 plugged");
+            if((line_data & LINE_2) != 0) ESP_LOGI(TAG, "C3L2 plugged");
+            if((line_data & LINE_3) != 0) ESP_LOGI(TAG, "C3L3 plugged");
+            if((line_data & LINE_4) != 0) ESP_LOGI(TAG, "C3L4 plugged");
+            if((line_data & LINE_5) != 0) ESP_LOGI(TAG, "C3L5 plugged");
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
 esp_err_t diag_gpio_expander_check(void) {
     LOGM_FUNC_IN();
     esp_err_t err = ESP_FAIL;
@@ -163,8 +234,8 @@ esp_err_t diag_gpio_expander_check(void) {
     err = i2c_ping(GPIO_EXPANDER_ADDR);
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
 
-    err = gpxp_initialize();
-    ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+    err = gpxp_initialize(true);
+    ESP_ERROR_CHECK(err);
 
     err = gpxp_writeRegister(GPXP_REGISTER_OUT, 0x00);
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
@@ -175,7 +246,8 @@ esp_err_t diag_gpio_expander_check(void) {
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
 
     //err = read_input_polling(500 / portTICK_RATE_MS, 100);
-    read_input_inter(300);
+    //read_input_inter(300);
+    read_matrix();
 
     LOGM_FUNC_OUT();
     return err;

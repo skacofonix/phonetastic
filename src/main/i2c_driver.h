@@ -30,9 +30,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-esp_err_t i2c_initialize(void);
+esp_err_t i2c_initialize(bool installDriver);
 
-esp_err_t i2c_finalize(void);
+esp_err_t i2c_finalize(bool deleteDriver);
 
 esp_err_t i2c_ping(int addr);
 

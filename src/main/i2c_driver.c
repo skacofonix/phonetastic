@@ -13,11 +13,11 @@
 static const char *TAG = TAG_I2C_DRIVER;
 
 static TickType_t i2c_timeout = 10000 / portTICK_RATE_MS;
-static bool i2c_initialized = false;
+static bool i2c_initialized = true;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-esp_err_t i2c_initialize() {
+esp_err_t i2c_initialize(bool installDriver) {
     LOGM_FUNC_IN();
     esp_err_t err = ESP_FAIL;
 
@@ -42,10 +42,12 @@ esp_err_t i2c_initialize() {
         ESP_ERROR_CHECK_WITHOUT_ABORT(err);
     }
 
-    err = i2c_driver_install(I2C_MASTER_NUM, conf.mode, I2C_MASTER_RX_BUF_DISABLE, I2C_MASTER_TX_BUF_DISABLE, 0);
-    if(err != ESP_OK) {
-        ESP_LOGE(TAG, "Fail to i2c_driver_install!");
-        ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+    if(installDriver) {
+        err = i2c_driver_install(I2C_MASTER_NUM, conf.mode, I2C_MASTER_RX_BUF_DISABLE, I2C_MASTER_TX_BUF_DISABLE, 0);
+        if(err != ESP_OK) {
+            ESP_LOGE(TAG, "Fail to i2c_driver_install!");
+            ESP_ERROR_CHECK_WITHOUT_ABORT(err);
+        }
     }
 
     end:
@@ -57,14 +59,21 @@ esp_err_t i2c_initialize() {
     return err;
 }
 
-esp_err_t i2c_finalize() {
+esp_err_t i2c_finalize(bool deleteDriver) {
     LOGM_FUNC_IN();
     esp_err_t err = ESP_FAIL;
 
-    err = i2c_driver_delete(I2C_MASTER_NUM);
+    if(deleteDriver) {
+        err = i2c_driver_delete(I2C_MASTER_NUM);
+        if(err != ESP_OK) {
+            ESP_LOGE(TAG, "Fail to i2c_driver_delete!");
+        }
+    } else {
+        err = ESP_OK;
+    }
 
-    if(err != ESP_OK) {
-        ESP_LOGE(TAG, "Fail to i2c_driver_delete!");
+    if(err == ESP_OK) {
+        i2c_initialized = false;
     }
 
     LOGM_FUNC_OUT();
